@@ -66,7 +66,8 @@ foreach (@ARGV){
 
 	#}
 	#close FILE;
-
+	
+	my $lat=0; # 
 	my $info = $exifTool->ImageInfo($file,"exif:GPSLatitude","exif:GPSLongitude",'ExifImageWidth', 'ExifImageHeight');
 	my $lat=$exifTool->GetValue("GPSLatitude",'ValueConv');
 	my $lon=$exifTool->GetValue("GPSLongitude",'ValueConv');
