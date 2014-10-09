@@ -210,7 +210,7 @@ sub parsepixel
 	$pixelcount=0;
 
 
-        print "$xstart,$xwidth,$ystart,$yheight\n";
+        print "$xstart,$xwidth,$ystart,$yheight\n" if $debug;
 
         for ($x=$xstart;$x<=$xwidth;$x++)
         {
