@@ -67,15 +67,15 @@ foreach (@ARGV){
 	#}
 	#close FILE;
 	
-	my $lat=0; # 
-	my $info = $exifTool->ImageInfo($file,"exif:GPSLatitude","exif:GPSLongitude",'ExifImageWidth', 'ExifImageHeight');
-	my $lat=$exifTool->GetValue("GPSLatitude",'ValueConv');
-	my $lon=$exifTool->GetValue("GPSLongitude",'ValueConv');
-	my $date=$exifTool->GetValue("DateTimeOriginal");
-	my $width=$exifTool->GetValue("ExifImageWidth");
-	my $height=$exifTool->GetValue("ExifImageHeight");
-	my $x_offset=$width*3/100; #to ensure that watermark will be printed, offset must be at least 3% of image width
-	my $y_offset=$height*3/100; #to ensure that watermark will be printed, the offset must be at least 3% of image height
+	undef $formatted_address; 
+	$info = $exifTool->ImageInfo($file,"exif:GPSLatitude","exif:GPSLongitude",'ExifImageWidth', 'ExifImageHeight');
+	$lat=$exifTool->GetValue("GPSLatitude",'ValueConv');
+	$lon=$exifTool->GetValue("GPSLongitude",'ValueConv');
+	$date=$exifTool->GetValue("DateTimeOriginal");
+	$width=$exifTool->GetValue("ExifImageWidth");
+	$height=$exifTool->GetValue("ExifImageHeight");
+	$x_offset=$width*3/100; #to ensure that watermark will be printed, offset must be at least 3% of image width
+	$y_offset=$height*3/100; #to ensure that watermark will be printed, the offset must be at least 3% of image height
 	print "$date $width $height\n" if $debug;
 
 	# "Coordinate GPS non presenti nel file $file\n" if !defined $lat;
@@ -84,7 +84,7 @@ foreach (@ARGV){
 
 		
 		print "Latitude: $lat Longitude: $lon\n" if $debug;
-
+		
 		my $ua = LWP::UserAgent->new;
 		$ua->default_header(
 			'Accept-Charset' => 'utf-8'
@@ -150,6 +150,7 @@ foreach (@ARGV){
 	else
 	{
 		print "GPS coords not found in $file\n";
+		#next; #go to next image
 			
 	}
 	$image=Image::Magick->new;
@@ -188,13 +189,16 @@ foreach (@ARGV){
 
 	if ( -e $save_file && ! $force)
 	{
-		print "Output file ".$save_file." exists and force flag not set. Skipping...\n";
+		print "Output file ".$save_file." exists and force flag is not set. Skipping...\n";
 	}
 	else
 	{
-		$err=$image->Write($save_file);
+		$compression_type=($file_extension eq "jpg")  ? "LosslessJPEG" : "None";
+		print $compression_type if $debug;
+		$err=$image->Write(filename=>$save_file, compression=>$compression_type);
 		warn "$err" if "$err";
 	}
+	print "\n\n" if $debug;
 }
 
 
